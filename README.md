@@ -6,7 +6,7 @@
 
 1. Check if your `Node.js` version is >= **14** and <= **19**.
 2. Change or configurate the name of your extension on `src/manifest`.
-3. Run `npm install` to install the dependencies.
+3. Run `yarn install` to install the dependencies.
 
 ## Developing
 
@@ -17,7 +17,7 @@ $ cd echolink
 
 $ nodesw 18
 
-$ npm run dev
+$ yarn dev
 ```
 
 ### Chrome Extension Developer Mode
@@ -36,7 +36,7 @@ $ npm run dev
 After the development of your extension run the command
 
 ```shell
-$ npm run build
+$ yarn build
 ```
 
 Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
