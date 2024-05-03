@@ -1,40 +1,48 @@
 {
   "name": "echolink",
-  "displayName": "EchoLink",
   "version": "0.0.0",
-  "author": "othyn",
   "description": "",
-  "type": "module",
-  "license": "MIT",
-  "keywords": [
-    "chrome-extension",
-    "vue",
-    "vite",
-    "create-chrome-ext"
-  ],
-  "engines": {
-    "node": ">=14.18.0"
-  },
+  "author": "othyn",
   "scripts": {
+    "serve": "vite preview",
+    "build": "vite build",
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
     "fmt": "prettier --write '**/*.{vue,ts,json,css,scss,md}'",
+    "preview": "vite preview",
     "zip": "npm run build && node src/zip.js"
   },
   "dependencies": {
+    "@mdi/font": "5.9.55",
     "axios": "^1.6.8",
-    "vue": "^3.3.4"
+    "roboto-fontface": "*",
+    "vue": "^3.3.4",
+    "vuetify": "^3.0.0-beta.0",
+    "webfontloader": "^1.0.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.19",
     "@types/chrome": "^0.0.246",
+    "@types/webfontloader": "^1.0.0",
     "@vitejs/plugin-vue": "^4.4.0",
     "gulp": "^4.0.2",
     "gulp-zip": "^6.0.0",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
+    "vite-plugin-vuetify": "^1.0.0-alpha.12",
+    "vue-cli-plugin-vuetify": "~2.5.8",
     "vue-tsc": "^1.8.18"
-  }
+  },
+  "displayName": "EchoLink",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "vue",
+    "vite",
+    "create-chrome-ext"
+  ],
+  "license": "MIT",
+  "type": "module"
 }
