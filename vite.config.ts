@@ -11,6 +11,13 @@ export default defineConfig(({ mode }) => {
   const production = mode === 'production'
 
   return {
+    server: {
+      port: 5173,
+      strictPort: true,
+      hmr: {
+        port: 5173,
+      },
+    },
     build: {
       cssCodeSplit: true,
       emptyOutDir: true,
@@ -21,10 +28,6 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    plugins: [
-		crx({ manifest }),
-		vue(),
-		vuetify({ autoImport: true }),
-	],
+    plugins: [crx({ manifest }), vue(), vuetify({ autoImport: true })],
   }
 })
