@@ -1,29 +1,31 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <v-card class="pa-5">
-          <v-card-title class="text-h5">New Bookmark</v-card-title>
+  <v-container fluid>
+    <v-row justify="center">
+      <v-col cols="12" md="10" lg="8">
+        <v-card variant="text" title="New Bookmark" subtitle="Bookmark this page in LinkAce.">
+          <template v-slot:append>
+            <v-btn icon="mdi-cog" variant="text" @click="dialog = true"></v-btn>
+          </template>
           <v-card-text>
             <v-form>
               <v-text-field
                 v-model="bookmark.url"
                 label="URL"
-                outlined
+                density="compact"
+                variant="outlined"
                 readonly
-                :value="bookmark.url"
               ></v-text-field>
               <v-text-field
                 v-model="bookmark.title"
                 label="Title"
-                outlined
+                density="compact"
+                variant="outlined"
                 readonly
-                :value="bookmark.title"
               ></v-text-field>
               <v-textarea
                 v-model="bookmark.description"
                 label="Description"
-                outlined
+                density="compact"
                 auto-grow
               ></v-textarea>
               <v-autocomplete
@@ -32,35 +34,79 @@
                 label="Tags"
                 multiple
                 chips
-                outlined
+                density="compact"
                 clearable
               ></v-autocomplete>
               <v-autocomplete
                 v-model="bookmark.list"
                 :items="lists"
                 label="List"
-                outlined
+                density="compact"
                 clearable
               ></v-autocomplete>
-              <v-btn color="primary" @click="saveBookmark">Save</v-btn>
+              <v-btn color="primary" class="mt-2" @click="saveBookmark">Save bookmark</v-btn>
             </v-form>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
+
+  <v-dialog v-model="dialog" transition="dialog-bottom-transition" fullscreen>
+    <v-card prepend-icon="mdi-cog" title="Settings">
+      <v-card-text>
+        <v-row dense>
+          <v-col cols="12" md="4" sm="6">
+            <v-text-field
+              v-model="settings.linkAceUrl"
+              type="input"
+              label="LinkAce URL"
+              hint="https://linkace.example.com"
+              required
+            ></v-text-field>
+          </v-col>
+
+          <v-col cols="12" md="4" sm="6">
+            <v-text-field
+              v-model="settings.apiToken"
+              type="input"
+              label="API Token"
+              required
+            ></v-text-field>
+
+            <small class="text-caption text-medium-emphasis">
+              You can find your API Token at: {{ settings.linkAceUrl }}/settings
+            </small>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 export default {
   data() {
     return {
+      dialog: false,
       bookmark: {
         url: '',
         title: '',
         description: '',
         tags: [],
         list: null,
+      },
+      settings: {
+        linkAceUrl: '',
+        apiToken: '',
       },
       tags: [], // Populate with available tags
       lists: [], // Populate with available lists
@@ -74,3 +120,7 @@ export default {
   },
 }
 </script>
+
+<style>
+@import './popup.css';
+</style>

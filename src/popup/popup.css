@@ -1,0 +1,12 @@
+html {
+    /* Max chrome allows in v3: 800px */
+    width: 500px;
+    /* Max chrome allows in v3: 600px */
+    height: 600px;
+}
+
+/* Fix for dialogues causing the popup window to go to 1px */
+html.v-overlay-scroll-blocked {
+    position: static !important;
+    width: 500px !important;
+}
