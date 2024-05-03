@@ -118,6 +118,28 @@ export default {
       console.log('Bookmark saved:', this.bookmark)
     },
   },
+  watch: {
+    'settings.linkAceUrl'(newUrl, oldUrl) {
+      console.log('Setting linkAceUrl:', newUrl)
+      chrome.storage.sync.set({ linkAceUrl: newUrl })
+    },
+    'settings.apiToken'(newToken, oldToken) {
+      console.log('Setting apiToken:', newToken)
+      chrome.storage.sync.set({ apiToken: newToken })
+    },
+  },
+  mounted() {
+    chrome.storage.sync.get(['linkAceUrl'], (result) => {
+      console.log('Restoring LinkAceUrl:', result.linkAceUrl)
+      this.settings.linkAceUrl = result.linkAceUrl ?? ''
+      console.log('Restored LinkAceUrl:', this.settings.linkAceUrl)
+    })
+    chrome.storage.sync.get(['apiToken'], (result) => {
+      console.log('Restoring apiToken:', result.apiToken)
+      this.settings.apiToken = result.apiToken ?? ''
+      console.log('Restored apiToken:', this.settings.apiToken)
+    })
+  },
 }
 </script>
 
