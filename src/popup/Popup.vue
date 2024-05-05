@@ -11,20 +11,50 @@
 
         <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
           <template v-slot:append>
-            <v-btn
-              icon="mdi-refresh"
-              variant="text"
-              @click="checkCurrentBookmarkUrl()"
-              :disabled="loading"
-              :loading="loading"
-            ></v-btn>
+            <v-tooltip
+              location="bottom"
+              :text="
+                bookmark.id > 0
+                  ? 'Already bookmarked in LinkAce!'
+                  : 'Not yet bookmarked in LinkAce.'
+              "
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
+                  :color="bookmark.id > 0 ? 'success' : 'warning'"
+                  variant="text"
+                  :disabled="loading"
+                  :loading="loading"
+                ></v-btn>
+              </template>
+            </v-tooltip>
 
-            <v-btn
-              icon="mdi-cog"
-              variant="text"
-              @click="settings.showing = true"
-              :disabled="loading"
-            ></v-btn>
+            <v-tooltip location="bottom" text="Refresh">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-refresh"
+                  variant="text"
+                  @click="checkCurrentBookmarkUrl()"
+                  :disabled="loading"
+                  :loading="loading"
+                ></v-btn>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip location="bottom" text="Settings">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-cog"
+                  variant="text"
+                  @click="settings.showing = true"
+                  :disabled="loading"
+                ></v-btn>
+              </template>
+            </v-tooltip>
           </template>
           <v-card-text>
             <v-form>
@@ -148,6 +178,7 @@ export default {
     return {
       loading: true,
       bookmark: {
+        id: 0,
         url: '',
         title: '',
         description: '',
@@ -246,7 +277,9 @@ export default {
           (response) => {
             if (response.data.data && response.data.data.length > 0) {
               // The search doesn't return any tag or list data, so we need to do a supplemental direct pull via ID
-              axios.get('/api/v1/links/' + response.data.data[0].id).then(
+              this.bookmark.id = response.data.data[0].id
+
+              axios.get('/api/v1/links/' + this.bookmark.id).then(
                 (response) => {
                   if (response.data) {
                     let link = response.data
