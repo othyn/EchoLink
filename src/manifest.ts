@@ -29,5 +29,5 @@ export default defineManifest({
       matches: [],
     },
   ],
-  permissions: ['tabs', 'storage'],
+  permissions: ['activeTab', 'storage'],
 })

@@ -132,22 +132,22 @@ export default {
     }
   },
   methods: {
-    showSnackBar(type: string, text: string) {
+    showSnackBar(type: string, text: string): void {
       this.snackBar.showing = true
       this.snackBar.type = type
       this.snackBar.text = text
     },
-    showSuccess(text: string) {
+    showSuccess(text: string): void {
       this.showSnackBar('success', text)
     },
-    showError(text: string) {
+    showError(text: string): void {
       this.showSnackBar('error', text)
     },
-    showAxiosError(error: AxiosError) {
+    showAxiosError(error: AxiosError): void {
       // console.error(error)
       this.showSnackBar('error', error.code + ': ' + error.message)
     },
-    testApi() {
+    testApi(): void {
       axios.get('/api/v1/links').then(
         () => {
           this.showSuccess('Great! Everything appears to be working 👍')
@@ -157,7 +157,19 @@ export default {
         },
       )
     },
-    saveBookmark() {
+    async fetchActiveTab() {
+      try {
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+
+        if (tab) {
+          this.bookmark.url = tab.url ?? ''
+          this.bookmark.title = tab.title ?? ''
+        }
+      } catch (error) {
+        this.showError('Failed to fetch active tab: ' + error)
+      }
+    },
+    saveBookmark(): void {
       // Logic to save the bookmark
       console.log('Bookmark saved:', this.bookmark)
     },
@@ -185,6 +197,7 @@ export default {
 
       console.log('Restored LinkAceUrl:', url)
     })
+
     chrome.storage.sync.get(['apiToken'], (result) => {
       let apiToken = result.apiToken ?? ''
 
@@ -193,6 +206,8 @@ export default {
 
       console.log('Restored apiToken:', apiToken)
     })
+
+    this.fetchActiveTab()
   },
 }
 </script>
