@@ -2,9 +2,17 @@
   <v-container fluid>
     <v-row justify="center">
       <v-col cols="12" md="10" lg="8">
-        <v-card variant="text" title="New Bookmark" subtitle="Bookmark this page in LinkAce.">
+        <v-snackbar
+          location="top"
+          :color="snackBar.type"
+          :text="snackBar.text"
+          v-model="snackBar.showing"
+        ></v-snackbar>
+
+        <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
           <template v-slot:append>
-            <v-btn icon="mdi-cog" variant="text" @click="dialog = true"></v-btn>
+            <v-btn icon="mdi-refresh" variant="text" @click="settings.showing = true"></v-btn>
+            <v-btn icon="mdi-cog" variant="text" @click="settings.showing = true"></v-btn>
           </template>
           <v-card-text>
             <v-form>
@@ -29,18 +37,18 @@
                 auto-grow
               ></v-textarea>
               <v-autocomplete
+                v-model="bookmark.list"
+                :items="lists"
+                label="List"
+                density="compact"
+                clearable
+              ></v-autocomplete>
+              <v-autocomplete
                 v-model="bookmark.tags"
                 :items="tags"
                 label="Tags"
                 multiple
                 chips
-                density="compact"
-                clearable
-              ></v-autocomplete>
-              <v-autocomplete
-                v-model="bookmark.list"
-                :items="lists"
-                label="List"
                 density="compact"
                 clearable
               ></v-autocomplete>
@@ -52,8 +60,12 @@
     </v-row>
   </v-container>
 
-  <v-dialog v-model="dialog" transition="dialog-bottom-transition" fullscreen>
-    <v-card prepend-icon="mdi-cog" title="Settings">
+  <v-dialog v-model="settings.showing" transition="dialog-bottom-transition" fullscreen>
+    <v-card
+      prepend-icon="mdi-cog"
+      title="Settings"
+      :subtitle="'Find your API Token at ' + settings.linkAceUrl + '/settings'"
+    >
       <v-card-text>
         <v-row dense>
           <v-col cols="12" md="4" sm="6">
@@ -74,9 +86,7 @@
               required
             ></v-text-field>
 
-            <small class="text-caption text-medium-emphasis">
-              You can find your API Token at: {{ settings.linkAceUrl }}/settings
-            </small>
+            <v-btn variant="tonal" class="mt-3" @click="testApi">Test connection</v-btn>
           </v-col>
         </v-row>
       </v-card-text>
@@ -86,17 +96,20 @@
       <v-card-actions>
         <v-spacer></v-spacer>
 
-        <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+        <v-btn text="Close" variant="plain" @click="settings.showing = false"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script>
+<script lang="ts">
+import axios, { AxiosError } from 'axios'
+
+axios.defaults.timeout = 5000
+
 export default {
   data() {
     return {
-      dialog: false,
       bookmark: {
         url: '',
         title: '',
@@ -105,14 +118,45 @@ export default {
         list: null,
       },
       settings: {
+        showing: false,
         linkAceUrl: '',
         apiToken: '',
       },
-      tags: [], // Populate with available tags
-      lists: [], // Populate with available lists
+      tags: [],
+      lists: [],
+      snackBar: {
+        showing: false,
+        type: 'info',
+        text: 'default text',
+      },
     }
   },
   methods: {
+    showSnackBar(type: string, text: string) {
+      this.snackBar.showing = true
+      this.snackBar.type = type
+      this.snackBar.text = text
+    },
+    showSuccess(text: string) {
+      this.showSnackBar('success', text)
+    },
+    showError(text: string) {
+      this.showSnackBar('error', text)
+    },
+    showAxiosError(error: AxiosError) {
+      // console.error(error)
+      this.showSnackBar('error', error.code + ': ' + error.message)
+    },
+    testApi() {
+      axios.get('/api/v1/links').then(
+        () => {
+          this.showSuccess('Great! Everything appears to be working 👍')
+        },
+        (error) => {
+          this.showAxiosError(error)
+        },
+      )
+    },
     saveBookmark() {
       // Logic to save the bookmark
       console.log('Bookmark saved:', this.bookmark)
@@ -120,24 +164,34 @@ export default {
   },
   watch: {
     'settings.linkAceUrl'(newUrl, oldUrl) {
-      console.log('Setting linkAceUrl:', newUrl)
       chrome.storage.sync.set({ linkAceUrl: newUrl })
+      axios.defaults.baseURL = newUrl
+
+      console.log('Updated linkAceUrl:', newUrl)
     },
     'settings.apiToken'(newToken, oldToken) {
-      console.log('Setting apiToken:', newToken)
       chrome.storage.sync.set({ apiToken: newToken })
+      axios.defaults.headers.common['authorization'] = 'Bearer ' + newToken
+
+      console.log('Updated apiToken:', newToken)
     },
   },
   mounted() {
     chrome.storage.sync.get(['linkAceUrl'], (result) => {
-      console.log('Restoring LinkAceUrl:', result.linkAceUrl)
-      this.settings.linkAceUrl = result.linkAceUrl ?? ''
-      console.log('Restored LinkAceUrl:', this.settings.linkAceUrl)
+      let url = result.linkAceUrl ?? ''
+
+      this.settings.linkAceUrl = url
+      axios.defaults.baseURL = url
+
+      console.log('Restored LinkAceUrl:', url)
     })
     chrome.storage.sync.get(['apiToken'], (result) => {
-      console.log('Restoring apiToken:', result.apiToken)
-      this.settings.apiToken = result.apiToken ?? ''
-      console.log('Restored apiToken:', this.settings.apiToken)
+      let apiToken = result.apiToken ?? ''
+
+      this.settings.apiToken = apiToken
+      axios.defaults.headers.common['authorization'] = 'Bearer ' + apiToken
+
+      console.log('Restored apiToken:', apiToken)
     })
   },
 }
