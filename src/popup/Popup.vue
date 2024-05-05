@@ -234,12 +234,12 @@ export default {
 
       axios.get('/api/v1/links').then(
         () => {
-          this.showSuccess('Great! Everything appears to be working 👍')
           this.finishLoading()
+          this.showSuccess('Great! Everything appears to be working 👍')
         },
         (error) => {
-          this.showAxiosError(error)
           this.finishLoading()
+          this.showAxiosError(error)
         },
       )
     },
@@ -300,8 +300,8 @@ export default {
                   this.finishLoading()
                 },
                 (error) => {
-                  this.showAxiosError(error)
                   this.finishLoading()
+                  this.showAxiosError(error)
                 },
               )
             } else {
@@ -309,12 +309,95 @@ export default {
             }
           },
           (error) => {
-            this.showAxiosError(error)
             this.finishLoading()
+            this.showAxiosError(error)
           },
         )
     },
-    saveBookmark(): void {},
+    getSelectedLists(): [number] {
+      return this.bookmark.lists.map((list) => list.value)
+    },
+    getSelectedTags(): [number] {
+      return this.bookmark.tags.map((tag) => tag.value)
+    },
+    createBookmark(): void {
+      if (this.bookmark.id > 0) {
+        return
+      }
+
+      this.startLoading()
+
+      axios
+        .post('/api/v1/links', {
+          url: this.bookmark.url,
+          title: this.bookmark.title,
+          description: this.bookmark.description,
+          lists: this.getSelectedLists(),
+          tags: this.getSelectedTags(),
+          is_private: true,
+          check_disabled: false,
+        })
+        .then(
+          (response) => {
+            this.finishLoading()
+            this.showSuccess('Bookmark added! 🥳')
+
+            // Set the ID so the next time the form is submitted it will use edit mode
+            this.bookmark.id = response.data.id
+
+            // Update the description, as the user may not set it, in which LinkAce will generate one
+            this.bookmark.description = response.data.description
+
+            // setTimeout(() => {
+            //   window.close()
+            // }, 1000)
+          },
+          (error) => {
+            this.finishLoading()
+            this.showAxiosError(error)
+          },
+        )
+    },
+    updateBookmark(): void {
+      if (this.bookmark.id <= 0) {
+        return
+      }
+
+      this.startLoading()
+
+      axios
+        .patch('/api/v1/links/' + this.bookmark.id, {
+          url: this.bookmark.url,
+          title: this.bookmark.title,
+          description: this.bookmark.description,
+          lists: this.getSelectedLists(),
+          tags: this.getSelectedTags(),
+          is_private: true,
+          check_disabled: false,
+        })
+        .then(
+          (response) => {
+            this.finishLoading()
+            this.showSuccess('Bookmark updated! 🥳')
+
+            // setTimeout(() => {
+            //   window.close()
+            // }, 1000)
+          },
+          (error) => {
+            this.finishLoading()
+            this.showAxiosError(error)
+          },
+        )
+    },
+    saveBookmark(): void {
+      // Update if the bookmark has an ID, otherwise create!
+      if (this.bookmark.id > 0) {
+        this.updateBookmark()
+      } else {
+        this.createBookmark()
+      }
+    },
   },
   watch: {
     'settings.linkAceUrl'(newUrl, oldUrl) {
