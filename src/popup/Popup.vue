@@ -127,6 +127,13 @@
     >
       <v-card-text>
         <v-row dense>
+          <v-checkbox
+            label="Auto close window after submission?"
+            v-model="settings.autoCloseAfterSubmit"
+          ></v-checkbox>
+
+          <v-divider class="mb-8"></v-divider>
+
           <v-col cols="12" md="4" sm="6">
             <v-text-field
               v-model="settings.linkAceUrl"
@@ -145,14 +152,9 @@
               required
             ></v-text-field>
 
-            <v-btn
-              variant="tonal"
-              class="mt-3"
-              @click="testApi"
-              :disabled="loading"
-              :loading="loading"
-              >Test connection</v-btn
-            >
+            <v-btn variant="tonal" @click="testApi" :disabled="loading" :loading="loading"
+              >Test connection
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-text>
@@ -162,7 +164,12 @@
       <v-card-actions>
         <v-spacer></v-spacer>
 
-        <v-btn text="Close" variant="plain" @click="settings.showing = false"></v-btn>
+        <v-btn
+          text="Close"
+          variant="tonal"
+          color="primary"
+          @click="settings.showing = false"
+        ></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -189,6 +196,7 @@ export default {
         showing: false,
         linkAceUrl: '',
         apiToken: '',
+        autoCloseAfterSubmit: false,
       },
       lists: [],
       tags: [],
@@ -348,9 +356,11 @@ export default {
             // Update the description, as the user may not set it, in which LinkAce will generate one
             this.bookmark.description = response.data.description
 
-            // setTimeout(() => {
-            //   window.close()
-            // }, 1000)
+            if (this.settings.autoCloseAfterSubmit) {
+              setTimeout(() => {
+                window.close()
+              }, 1000)
+            }
           },
           (error) => {
             this.finishLoading()
@@ -380,9 +390,11 @@ export default {
             this.finishLoading()
             this.showSuccess('Bookmark updated! 🥳')
 
-            // setTimeout(() => {
-            //   window.close()
-            // }, 1000)
+            if (this.settings.autoCloseAfterSubmit) {
+              setTimeout(() => {
+                window.close()
+              }, 1000)
+            }
           },
           (error) => {
             this.finishLoading()
@@ -408,6 +420,9 @@ export default {
       chrome.storage.sync.set({ apiToken: newToken })
       axios.defaults.headers.common['authorization'] = 'Bearer ' + newToken
     },
+    'settings.autoCloseAfterSubmit'(newState, oldState) {
+      chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
+    },
   },
   mounted() {
     chrome.storage.sync.get(['linkAceUrl'], (result) => {
@@ -422,6 +437,10 @@ export default {
 
       this.settings.apiToken = apiToken
       axios.defaults.headers.common['authorization'] = 'Bearer ' + apiToken
+    })
+
+    chrome.storage.sync.get(['autoCloseAfterSubmit'], (result) => {
+      this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
     })
 
     this.fetchActiveTab()
