@@ -44,6 +44,19 @@
               </template>
             </v-tooltip>
 
+            <v-tooltip location="bottom" :text="settings.theme.title">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="settings.theme.icon"
+                  variant="text"
+                  @click="toggleTheme()"
+                  :disabled="loading"
+                  :loading="loading"
+                ></v-btn>
+              </template>
+            </v-tooltip>
+
             <v-tooltip location="bottom" text="Settings">
               <template v-slot:activator="{ props }">
                 <v-btn
@@ -194,6 +207,36 @@ import { isProxy, toRaw } from 'vue'
 
 axios.defaults.timeout = 5000
 
+function getDeviceTheme(): string {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
+}
+
+const themes: { [key: string]: { [key: string]: string } } = {
+  device: {
+    mode: 'device',
+    next: 'light',
+    vuetify: getDeviceTheme(),
+    title: 'Follow device mode',
+    icon: 'mdi-theme-light-dark',
+  },
+  light: {
+    mode: 'light',
+    next: 'dark',
+    vuetify: 'light',
+    title: 'Light mode',
+    icon: 'mdi-weather-sunny',
+  },
+  dark: {
+    mode: 'dark',
+    next: 'device',
+    vuetify: 'dark',
+    title: 'Dark mode',
+    icon: 'mdi-weather-night',
+  },
+}
+
 export default {
   data() {
     return {
@@ -210,6 +253,7 @@ export default {
       },
       settings: {
         showing: false,
+        theme: themes.device,
         linkAceUrl: '',
         apiToken: '',
         autoCloseAfterSubmit: false,
@@ -225,6 +269,14 @@ export default {
     }
   },
   methods: {
+    setTheme(mode: string): void {
+      this.settings.theme = themes[mode]
+      chrome.storage.sync.set({ theme: this.settings.theme })
+      this.$vuetify.theme.global.name = this.settings.theme.vuetify
+    },
+    toggleTheme(): void {
+      this.setTheme(this.settings.theme.next)
+    },
     startLoading(): void {
       this.loading = true
     },
@@ -542,6 +594,10 @@ export default {
     },
   },
   mounted() {
+    chrome.storage.sync.get(['theme'], (result) => {
+      this.setTheme(result.theme.mode ?? themes.device)
+    })
+
     chrome.storage.sync.get(['linkAceUrl'], (result) => {
       let url = result.linkAceUrl ?? ''
 
@@ -570,7 +626,6 @@ export default {
       } else {
         this.bookmark.tags = []
       }
-      console.log(this.bookmark.tags)
     })
 
     this.fetchActiveTab()
