@@ -1,0 +1,80 @@
+name: Automated Build & Release
+
+on:
+  push:
+    branches:
+      - dev
+
+  # Versioned releases at the moment have to be manually actioned in order to define a release increment
+  workflow_dispatch:
+    inputs:
+      release_version_increment:
+        type: choice
+        description: Select the release version increment
+        required: true
+        default: patch
+        options:
+          - major
+          - minor
+          - patch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Create & Tag Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build Changelog
+        uses: johnyherangi/create-release-notes@v1
+        id: build_changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine production release
+        if: github.event_name == 'workflow_dispatch'
+        run: yarn --no-git-tag-version --${{ github.event.inputs.release_version_increment }}
+
+      - name: Determine pre-release
+        if: github.event_name != 'workflow_dispatch'
+        run: yarn --no-git-tag-version --prerelease
+
+      - name: Commit any changes back to the repo
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '[GitHub Actions Bot: Version Bump]'
+          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+
+      - name: Get version from package.json
+        id: package_version
+        uses: actions/github-script@v7
+        with:
+          script: return require('./package.json').version;
+          result-encoding: string
+
+      - name: Build a release package
+        run: yarn package
+
+      - name: Create a new release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ steps.package_version.outputs.result }}
+          tag_name: v${{ steps.package_version.outputs.result }}
+          body: ${{ steps.build_changelog.outputs.release-notes }}
+          prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+          files: EchoLink-${{ steps.package_version.outputs.result }}.zip
