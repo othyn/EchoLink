@@ -25,6 +25,7 @@
                   :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
                   :color="bookmark.id > 0 ? 'success' : 'warning'"
                   variant="text"
+                  @click="visitActiveTabLink()"
                   :disabled="loading"
                   :loading="loading"
                 ></v-btn>
@@ -369,6 +370,11 @@ export default {
       this.fetchActiveTabLink()
       this.fetchLists(true)
       this.fetchTags(true)
+    },
+    visitActiveTabLink(): void {
+      if (this.bookmark.id > 0) {
+        chrome.tabs.create({ url: this.settings.linkAceUrl + '/links/' + this.bookmark.id })
+      }
     },
     fetchActiveTabLink(): void {
       this.startLoading()

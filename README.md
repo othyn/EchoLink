@@ -35,7 +35,7 @@ The key ways in which **EchoLink** improves upon [Creling/Yet-Another-LinkAce-Ex
 - Far more performant, making adding lists and tags super speedy.
 - Utilises far fewer API calls, meaning you'll hit the LinkAce 60r/60s rate limit far less often.
 - More consistent behaviour when checking for existing links.
-- Quality of life additions, such as a manual refresh option.
+- Quality of life additions, such as a manual refresh option and quick linking to the LinkAce page for the active link.
 - Light and dark mode support, including dynamically reading from your device preference.
 - Refreshed and more modern UI.
 - Modernised tooling; Manifest v3, Vue 3, Vuetify 3, Typescript, Yarn and Vite.
