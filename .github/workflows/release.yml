@@ -80,12 +80,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build Changelog
-        uses: johnyherangi/create-release-notes@v1
-        id: build_changelog
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Determine production release
         if: github.event_name == 'workflow_dispatch'
         run: yarn version --no-git-tag-version --${{ github.event.inputs.release_version_increment }}
@@ -95,6 +89,7 @@ jobs:
         run: yarn version --no-git-tag-version --prerelease
 
       - name: Commit any changes back to the repo
+        id: commit-and-push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: '[GitHub Actions Bot: Version Bump]'
@@ -110,9 +105,18 @@ jobs:
       - name: Build a release package
         run: yarn package
 
+      - name: Build Changelog
+        uses: johnyherangi/create-release-notes@v1
+        id: build_changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          head-ref: ${{ steps.commit-and-push.outputs.commit_hash }}
+
       - name: Create a new release
         uses: softprops/action-gh-release@v1
         with:
+          target_commitish: ${{ steps.commit-and-push.outputs.commit_hash }}
           name: v${{ steps.package_version.outputs.result }}
           tag_name: v${{ steps.package_version.outputs.result }}
           body: ${{ steps.build_changelog.outputs.release-notes }}
