@@ -376,6 +376,10 @@ export default {
         return
       }
 
+      if (this.loadingLists) {
+        return
+      }
+
       this.loadingLists = true
 
       axios.get('/api/v1/lists?per_page=0&order_by=name&order_dir=asc').then(
@@ -398,6 +402,10 @@ export default {
     // Really hacky and not performant, works for now until I get interactive search working...
     fetchTags(force: boolean): void {
       if (this.tags.length > 0 && !force) {
+        return
+      }
+
+      if (this.loadingTags) {
         return
       }
 
