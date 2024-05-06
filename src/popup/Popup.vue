@@ -91,7 +91,7 @@
                 auto-select-first
                 :disabled="loading"
                 :loading="loading || loadingLists"
-                @click="fetchLists(false)"
+                @focus="fetchLists(false)"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -103,7 +103,7 @@
                 auto-select-first
                 :disabled="loading"
                 :loading="loading || loadingTags"
-                @click="fetchTags(false)"
+                @focus="fetchTags(false)"
               ></v-autocomplete>
 
               <v-btn
