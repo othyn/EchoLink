@@ -105,6 +105,7 @@
                 clear-on-select
                 auto-select-first
                 hide-no-data
+                clearable
                 :disabled="loading"
                 :loading="loading || loadingLists"
                 @focus="fetchLists(false)"
@@ -120,6 +121,7 @@
                 clear-on-select
                 auto-select-first
                 hide-no-data
+                clearable
                 :disabled="loading"
                 :loading="loading || loadingTags"
                 @focus="fetchTags(false)"
