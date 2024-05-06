@@ -174,13 +174,19 @@
             <v-divider class="mt-8 mb-4"></v-divider>
 
             <v-checkbox
-              density="comfortable"
+              density="compact"
               label="Auto close window after submission?"
               v-model="settings.autoCloseAfterSubmit"
             ></v-checkbox>
 
             <v-checkbox
-              density="comfortable"
+              density="compact"
+              label="Trim YouTube Url's?"
+              v-model="settings.trimYouTubeUrls"
+            ></v-checkbox>
+
+            <v-checkbox
+              density="compact"
               label="Persist last used tags?"
               v-model="settings.persistTags"
             ></v-checkbox>
@@ -260,6 +266,7 @@ export default {
         linkAceUrl: '',
         apiToken: '',
         autoCloseAfterSubmit: false,
+        trimYouTubeUrls: false,
         persistTags: false,
       },
       lists: [],
@@ -356,6 +363,18 @@ export default {
 
           if (this.bookmark.url[this.bookmark.url.length - 1] == '/') {
             this.bookmark.url = this.bookmark.url.substring(0, this.bookmark.url.length - 1)
+          }
+
+          // Trim's YouTube Url's of their playlist information and all other stuff,
+          //  to try and reduce duplicates from URL permutations.
+          if (this.settings.trimYouTubeUrls) {
+            const match = this.bookmark.url.match(
+              /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+            )
+
+            if (match && match[1]) {
+              this.bookmark.url = `https://www.youtube.com/watch?v=${match[1]}`
+            }
           }
 
           // Really stupid, but a small delay is required otherwise the current bookmark fetch doesn't work
@@ -590,6 +609,9 @@ export default {
     'settings.autoCloseAfterSubmit'(newState, oldState) {
       chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
     },
+    'settings.trimYouTubeUrls'(newState, oldState) {
+      chrome.storage.sync.set({ trimYouTubeUrls: newState })
+    },
     'settings.persistTags'(newState, oldState) {
       chrome.storage.sync.set({ persistTags: newState })
     },
@@ -624,6 +646,13 @@ export default {
       this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
     })
 
+    chrome.storage.sync.get(['trimYouTubeUrls'], (result) => {
+      this.settings.trimYouTubeUrls = result.trimYouTubeUrls ?? false
+
+      // As this depends on the value of trimYouTubeUrls, only call the rest of the chain once its loaded!
+      this.fetchActiveTab()
+    })
+
     chrome.storage.sync.get(['persistTags'], (result) => {
       this.settings.persistTags = result.persistTags ?? false
     })
@@ -635,8 +664,6 @@ export default {
         this.bookmark.tags = []
       }
     })
-
-    this.fetchActiveTab()
   },
 }
 </script>
