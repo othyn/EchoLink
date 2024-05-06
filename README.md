@@ -1,4 +1,7 @@
-# EchoLink
+<div align="center">
+    <img src="art/logo.png" alt="logo" width="128" height="auto" />
+    <h1>EchoLink</h1>
+</div>
 
 > A modern Chrome (Arc, Chrome, Chromium) extension to save a bookmark in [LinkAce](https://github.com/Kovah/LinkAce). Built in Vue 3, Vuetify 3, Typescript & Vite. Boilerplate provided by [create-chrome-ext](https://github.com/guocaoyi/create-chrome-ext).
 
