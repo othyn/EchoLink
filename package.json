@@ -1,6 +1,6 @@
 {
   "name": "EchoLink",
-  "version": "1.0.0",
+  "version": "0.0.1-0",
   "description": "A LinkAce bookmarking extension.",
   "author": "othyn",
   "scripts": {
@@ -9,7 +9,7 @@
     "dev": "vite",
     "fmt": "prettier --write '**/*.{vue,ts,json,css,scss,md}'",
     "preview": "vite preview",
-    "zip": "npm run build && node src/zip.js"
+    "package": "yarn build && node src/zip.js"
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
