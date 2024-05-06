@@ -33,12 +33,14 @@ $ yarn dev
 1. Set your Chrome based browser to ['Developer mode'](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
 2. Click ['Load unpacked'](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked), and select the `echolink/build` folder.
 
-## Packing
+## Packing & Releasing
 
-When things are ready to ship to production:
+There is a workflow that will run and generate [releases](https://github.com/othyn/EchoLink/releases) automatically, attaching the release archive.
+
+However, to do things manually, when things are ready to ship to production, the following command will build and package the extension ready for distribution:
 
 ```shell
-$ yarn build
+$ yarn package
 ```
 
-The contents of the `build` folder will be the extension, all bundled up and ready to be submitted to the Chrome Web Store, then follow the steps to ['Publish in the Chrome Web Store'](https://developer.chrome.com/webstore/publish).
+A new versioned archive of the extension will be placed into the `package` directory, all bundled up and ready to be published by following the steps to ['Publish in the Chrome Web Store'](https://developer.chrome.com/webstore/publish).
