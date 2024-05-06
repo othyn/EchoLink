@@ -88,11 +88,11 @@ jobs:
 
       - name: Determine production release
         if: github.event_name == 'workflow_dispatch'
-        run: yarn --no-git-tag-version --${{ github.event.inputs.release_version_increment }}
+        run: yarn version --no-git-tag-version --${{ github.event.inputs.release_version_increment }}
 
       - name: Determine pre-release
         if: github.event_name != 'workflow_dispatch'
-        run: yarn --no-git-tag-version --prerelease
+        run: yarn version --no-git-tag-version --prerelease
 
       - name: Commit any changes back to the repo
         uses: stefanzweifel/git-auto-commit-action@v4
