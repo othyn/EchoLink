@@ -1,6 +1,6 @@
 {
   "name": "EchoLink",
-  "version": "0.0.0",
+  "version": "0.0.1-0",
   "description": "A LinkAce bookmarking extension.",
   "author": "othyn",
   "scripts": {
