@@ -88,7 +88,10 @@
                 label="List"
                 multiple
                 chips
+                closable-chips
+                clear-on-select
                 auto-select-first
+                hide-no-data
                 :disabled="loading"
                 :loading="loading || loadingLists"
                 @focus="fetchLists(false)"
@@ -100,7 +103,10 @@
                 label="Tags"
                 multiple
                 chips
+                closable-chips
+                clear-on-select
                 auto-select-first
+                hide-no-data
                 :disabled="loading"
                 :loading="loading || loadingTags"
                 @focus="fetchTags(false)"
