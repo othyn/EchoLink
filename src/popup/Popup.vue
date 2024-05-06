@@ -234,7 +234,17 @@ export default {
         switch (error.response.status) {
           // Form validation error
           case 422:
-            this.showSnackBar('error', 'Error: ' + error.response.data.message)
+            var message = error.response.data.message
+
+            // The only time we can get a 'url taken' in this app, as its always bootstrapped from an existing URL,
+            //  is if the URL is in the trash. As the initial bootstrap search didn't find the URL as it doesn't
+            //  search trashed URL's. That means the only time we can get that error is if the URL is in the trash.
+            // Instead of doing a supplimentary API query and using up rate limited calls, just modify the message.
+            if (message == 'The url has already been taken.') {
+              message = 'The url has already been taken, and exists in your trash.'
+            }
+
+            this.showSnackBar('error', 'Error: ' + message)
             break
           // Rate limit error
           case 429:
