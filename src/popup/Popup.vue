@@ -135,13 +135,6 @@
     >
       <v-card-text>
         <v-row dense>
-          <v-checkbox
-            label="Auto close window after submission?"
-            v-model="settings.autoCloseAfterSubmit"
-          ></v-checkbox>
-
-          <v-divider class="mb-8"></v-divider>
-
           <v-col cols="12" md="4" sm="6">
             <v-text-field
               v-model="settings.linkAceUrl"
@@ -150,9 +143,7 @@
               hint="https://linkace.example.com"
               required
             ></v-text-field>
-          </v-col>
 
-          <v-col cols="12" md="4" sm="6">
             <v-text-field
               v-model="settings.apiToken"
               type="input"
@@ -163,6 +154,20 @@
             <v-btn variant="tonal" @click="testApi" :disabled="loading" :loading="loading"
               >Test connection
             </v-btn>
+
+            <v-divider class="mt-8 mb-4"></v-divider>
+
+            <v-checkbox
+              density="comfortable"
+              label="Auto close window after submission?"
+              v-model="settings.autoCloseAfterSubmit"
+            ></v-checkbox>
+
+            <v-checkbox
+              density="comfortable"
+              label="Persist last used tags?"
+              v-model="settings.persistTags"
+            ></v-checkbox>
           </v-col>
         </v-row>
       </v-card-text>
@@ -185,6 +190,7 @@
 
 <script lang="ts">
 import axios, { AxiosError } from 'axios'
+import { isProxy, toRaw } from 'vue'
 
 axios.defaults.timeout = 5000
 
@@ -207,6 +213,7 @@ export default {
         linkAceUrl: '',
         apiToken: '',
         autoCloseAfterSubmit: false,
+        persistTags: false,
       },
       lists: [],
       tags: [],
@@ -523,6 +530,16 @@ export default {
     'settings.autoCloseAfterSubmit'(newState, oldState) {
       chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
     },
+    'settings.persistTags'(newState, oldState) {
+      chrome.storage.sync.set({ persistTags: newState })
+    },
+    'bookmark.tags'(newState, oldState) {
+      if (this.settings.persistTags) {
+        chrome.storage.sync.set({ persistedTags: isProxy(newState) ? toRaw(newState) : newState })
+      } else {
+        chrome.storage.sync.set({ persistedTags: [] })
+      }
+    },
   },
   mounted() {
     chrome.storage.sync.get(['linkAceUrl'], (result) => {
@@ -541,6 +558,19 @@ export default {
 
     chrome.storage.sync.get(['autoCloseAfterSubmit'], (result) => {
       this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
+    })
+
+    chrome.storage.sync.get(['persistTags'], (result) => {
+      this.settings.persistTags = result.persistTags ?? false
+    })
+    chrome.storage.sync.get(['persistedTags'], (result) => {
+      if (this.settings.persistTags) {
+        this.fetchTags(false)
+        this.bookmark.tags = result.persistedTags ?? []
+      } else {
+        this.bookmark.tags = []
+      }
+      console.log(this.bookmark.tags)
     })
 
     this.fetchActiveTab()
