@@ -2,7 +2,7 @@
 
 > A modern Chrome (Arc, Chrome, Chromium) extension to save a bookmark in [LinkAce](https://github.com/Kovah/LinkAce). Built in Vue 3, Vuetify 3, Typescript & Vite. Boilerplate provided by [create-chrome-ext](https://github.com/guocaoyi/create-chrome-ext).
 
-Heavily inspired by [Creling/Yet-Another-LinkAce-Extension](https://github.com/Creling/Yet-Another-LinkAce-Extension), in which I'd been using for years and is an excellent extension. I wanted to PR a few feature/bugfixes, but found it was too out of date and required a serious re-write from the ground up. Thus, this project now existing.
+Heavily inspired by [Creling/Yet-Another-LinkAce-Extension](https://github.com/Creling/Yet-Another-LinkAce-Extension), an excellent extension which I'd been using for years. I wanted to PR a few new features and bugfixes, but found it was too out of date, requiring a serious re-write from the ground up. Thus, this project now existing. I like to think of it as the spiritual successor to that extension.
 
 <div align="center">
     <img alt="screenshot" src="art/example.png" width="70%" />
