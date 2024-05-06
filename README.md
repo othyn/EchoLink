@@ -5,8 +5,8 @@
 
 <div align="center">
     <p>
-        <a href="https://github.com/othyn/EchoLink/actions/workflows/10-release.yml">
-            <img src="https://github.com/othyn/EchoLink/actions/workflows/10-release.yml/badge.svg" alt="build" />
+        <a href="https://github.com/othyn/EchoLink/actions/workflows/release.yml">
+            <img src="https://github.com/othyn/EchoLink/actions/workflows/release.yml/badge.svg" alt="build" />
         </a>
         <a href="https://github.com/othyn/EchoLink/releases">
             <img src="https://img.shields.io/github/downloads/othyn/EchoLink/total" alt="lint" />
