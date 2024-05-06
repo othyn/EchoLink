@@ -37,7 +37,7 @@
                   v-bind="props"
                   icon="mdi-refresh"
                   variant="text"
-                  @click="checkCurrentBookmarkUrl()"
+                  @click="refresh()"
                   :disabled="loading"
                   :loading="loading"
                 ></v-btn>
@@ -88,9 +88,10 @@
                 label="List"
                 multiple
                 chips
-                clearable
+                auto-select-first
                 :disabled="loading"
-                :loading="loading"
+                :loading="loading || loadingLists"
+                @click="fetchLists(false)"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -99,9 +100,10 @@
                 label="Tags"
                 multiple
                 chips
-                clearable
+                auto-select-first
                 :disabled="loading"
-                :loading="loading"
+                :loading="loading || loadingTags"
+                @click="fetchTags(false)"
               ></v-autocomplete>
 
               <v-btn
@@ -184,6 +186,8 @@ export default {
   data() {
     return {
       loading: true,
+      loadingLists: false,
+      loadingTags: false,
       bookmark: {
         id: 0,
         url: '',
@@ -226,13 +230,23 @@ export default {
       this.showSnackBar('error', text)
     },
     showAxiosError(error: AxiosError): void {
-      console.error(error)
-      if (error.response && error.response.status == 429) {
-        // LinkAce doesn't expose the headers via CORS, Access-Control-Expose-Headers, so Axios can't see them...
-        // let rateLimitReset = error.response.headers.get('X-Ratelimit-Reset')
-        // let remainingSeconds = Date.now() - rateLimitReset
-        // this.showSnackBar('error', 'Rate limit reached, wait ' + remainingSeconds + ' seconds before trying again.')
-        this.showSnackBar('error', 'Rate limit reached, please try again in a few seconds.')
+      if (error.response) {
+        switch (error.response.status) {
+          // Form validation error
+          case 422:
+            this.showSnackBar('error', 'Error: ' + error.response.data.message)
+            break
+          // Rate limit error
+          case 429:
+            // LinkAce doesn't expose the headers via CORS, Access-Control-Expose-Headers, so Axios can't see them...
+            // let rateLimitReset = error.response.headers.get('X-Ratelimit-Reset')
+            // let remainingSeconds = Date.now() - rateLimitReset
+            // this.showSnackBar('error', 'Rate limit reached, wait ' + remainingSeconds + ' seconds before trying again.')
+            this.showSnackBar('error', 'Rate limit reached, please try again in a few seconds.')
+            break
+          default:
+            break
+        }
       } else {
         this.showSnackBar('error', error.code + ': ' + error.message)
       }
@@ -268,13 +282,18 @@ export default {
 
           // Really stupid, but a small delay is required otherwise the current bookmark fetch doesn't work
           await this.delay(25)
-          this.checkCurrentBookmarkUrl()
+          this.fetchActiveTabLink()
         }
       } catch (error) {
         this.showError('Failed to fetch active tab: ' + error)
       }
     },
-    checkCurrentBookmarkUrl(): void {
+    refresh() {
+      this.fetchActiveTabLink()
+      this.fetchLists(true)
+      this.fetchTags(true)
+    },
+    fetchActiveTabLink(): void {
       this.startLoading()
 
       axios
@@ -295,14 +314,24 @@ export default {
                     this.bookmark.url = link.url
                     this.bookmark.title = link.title
                     this.bookmark.description = link.description
-                    this.bookmark.lists = link.lists.map((list) => ({
-                      value: list.id,
-                      title: list.name,
-                    }))
-                    this.bookmark.tags = link.tags.map((tag) => ({
-                      value: tag.id,
-                      title: tag.name,
-                    }))
+
+                    // If there are attached lists, we're gonna need them!
+                    // Otherwise nothing is displayed in the element
+                    // Sotring the id & name as an object causes issues in inconsistent data as Vuetify only stores the id as an array
+                    if (link.lists.length > 0) {
+                      this.fetchLists(false)
+                    }
+
+                    this.bookmark.lists = link.lists.map((list) => list.id)
+
+                    // If there are attached tags, we're gonna need them!
+                    // Otherwise nothing is displayed in the element
+                    // Sotring the id & name as an object causes issues in inconsistent data as Vuetify only stores the id as an array
+                    if (link.tags.length > 0) {
+                      this.fetchTags(false)
+                    }
+
+                    this.bookmark.tags = link.tags.map((tag) => tag.id)
                   }
 
                   this.finishLoading()
@@ -322,11 +351,58 @@ export default {
           },
         )
     },
-    getSelectedLists(): [number] {
-      return this.bookmark.lists.map((list) => list.value)
+    // searchLists(value: string, query: string, item?: any) {
+    //   // Cannot get custom-filter to work to do interactive search...
+    // },
+    // Really hacky and not performant, works for now until I get interactive search working...
+    fetchLists(force: boolean): void {
+      if (this.lists.length > 0 && !force) {
+        return
+      }
+
+      this.loadingLists = true
+
+      axios.get('/api/v1/lists?per_page=0&order_by=name&order_dir=asc').then(
+        (response) => {
+          if (response.data.data && response.data.data.length > 0) {
+            this.lists = response.data.data.map((list) => ({
+              value: list.id,
+              title: list.name,
+            }))
+
+            this.loadingLists = false
+          }
+        },
+        (error) => {
+          this.loadingLists = false
+          this.showAxiosError(error)
+        },
+      )
     },
-    getSelectedTags(): [number] {
-      return this.bookmark.tags.map((tag) => tag.value)
+    // Really hacky and not performant, works for now until I get interactive search working...
+    fetchTags(force: boolean): void {
+      if (this.tags.length > 0 && !force) {
+        return
+      }
+
+      this.loadingTags = true
+
+      axios.get('/api/v1/tags?per_page=0&order_by=name&order_dir=asc').then(
+        (response) => {
+          if (response.data.data && response.data.data.length > 0) {
+            this.tags = response.data.data.map((tag) => ({
+              value: tag.id,
+              title: tag.name,
+            }))
+
+            this.loadingTags = false
+          }
+        },
+        (error) => {
+          this.loadingTags = false
+          this.showAxiosError(error)
+        },
+      )
     },
     createBookmark(): void {
       if (this.bookmark.id > 0) {
@@ -340,8 +416,8 @@ export default {
           url: this.bookmark.url,
           title: this.bookmark.title,
           description: this.bookmark.description,
-          lists: this.getSelectedLists(),
-          tags: this.getSelectedTags(),
+          lists: this.bookmark.lists,
+          tags: this.bookmark.tags,
           is_private: true,
           check_disabled: false,
         })
@@ -380,8 +456,8 @@ export default {
           url: this.bookmark.url,
           title: this.bookmark.title,
           description: this.bookmark.description,
-          lists: this.getSelectedLists(),
-          tags: this.getSelectedTags(),
+          lists: this.bookmark.lists,
+          tags: this.bookmark.tags,
           is_private: true,
           check_disabled: false,
         })
