@@ -1,0 +1,41 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run Prettier
+        run: yarn fmt
+
+      - name: Commit any changes back to the repo
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '[GitHub Actions Bot: Linting]'
+          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
