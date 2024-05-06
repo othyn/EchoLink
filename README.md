@@ -3,6 +3,32 @@
     <h1>EchoLink</h1>
 </div>
 
+<div align="center">
+    <p>
+        <a href="https://github.com/othyn/EchoLink/actions/workflows/10-release.yml">
+            <img src="https://github.com/othyn/EchoLink/actions/workflows/10-release.yml/badge.svg" alt="build" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/releases">
+            <img src="https://img.shields.io/github/downloads/othyn/EchoLink/total" alt="lint" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/graphs/contributors">
+            <img src="https://img.shields.io/github/contributors/othyn/EchoLink" alt="contributors" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/network/members">
+            <img src="https://img.shields.io/github/forks/othyn/EchoLink" alt="forks" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/stargazers">
+            <img src="https://img.shields.io/github/stars/othyn/EchoLink" alt="stars" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/issues/">
+            <img src="https://img.shields.io/github/issues/othyn/EchoLink" alt="open issues" />
+        </a>
+        <a href="https://github.com/othyn/EchoLink/blob/master/LICENSE">
+            <img src="https://img.shields.io/github/license/othyn/EchoLink.svg" alt="license" />
+        </a>
+    </p>
+</div>
+
 > A modern Chrome (Arc, Chrome, Chromium) extension to save a bookmark in [LinkAce](https://github.com/Kovah/LinkAce). Built in Vue 3, Vuetify 3, Typescript & Vite. Boilerplate provided by [create-chrome-ext](https://github.com/guocaoyi/create-chrome-ext).
 
 Heavily inspired by [Creling/Yet-Another-LinkAce-Extension](https://github.com/Creling/Yet-Another-LinkAce-Extension), an excellent extension which I'd been using for years. I wanted to PR a few new features and bugfixes, but found it was too out of date, requiring a serious re-write from the ground up. Thus, this project now existing. I like to think of it as the spiritual successor to that extension.
