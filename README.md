@@ -14,12 +14,6 @@
         <a href="https://github.com/othyn/EchoLink/graphs/contributors">
             <img src="https://img.shields.io/github/contributors/othyn/EchoLink" alt="contributors" />
         </a>
-        <a href="https://github.com/othyn/EchoLink/network/members">
-            <img src="https://img.shields.io/github/forks/othyn/EchoLink" alt="forks" />
-        </a>
-        <a href="https://github.com/othyn/EchoLink/stargazers">
-            <img src="https://img.shields.io/github/stars/othyn/EchoLink" alt="stars" />
-        </a>
         <a href="https://github.com/othyn/EchoLink/issues/">
             <img src="https://img.shields.io/github/issues/othyn/EchoLink" alt="open issues" />
         </a>
