@@ -1,147 +1,139 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="12" md="10" lg="8">
-        <v-snackbar
-          location="top"
-          :color="snackBar.type"
-          :text="snackBar.text"
-          v-model="snackBar.showing"
-        ></v-snackbar>
+  <v-snackbar
+    location="top"
+    :color="snackBar.type"
+    :text="snackBar.text"
+    v-model="snackBar.showing"
+  ></v-snackbar>
 
-        <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
-          <template v-slot:append>
-            <v-tooltip
-              location="bottom"
-              :text="
-                bookmark.id > 0
-                  ? 'Already bookmarked in LinkAce!'
-                  : 'Not yet bookmarked in LinkAce.'
-              "
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
-                  :color="bookmark.id > 0 ? 'success' : 'warning'"
-                  variant="text"
-                  @click="visitActiveTabLink()"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+  <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
+    <template v-slot:append>
+      <v-tooltip
+        location="bottom"
+        :text="
+          bookmark.id > 0 ? 'Already bookmarked in LinkAce!' : 'Not yet bookmarked in LinkAce.'
+        "
+      >
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
+            :color="bookmark.id > 0 ? 'success' : 'warning'"
+            variant="text"
+            @click="visitActiveTabLink()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" text="Refresh">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-refresh"
-                  variant="text"
-                  @click="refresh()"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+      <v-tooltip location="bottom" text="Refresh">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            icon="mdi-refresh"
+            variant="text"
+            @click="refresh()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" :text="settings.theme.title">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  :icon="settings.theme.icon"
-                  variant="text"
-                  @click="toggleTheme()"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+      <v-tooltip location="bottom" :text="settings.theme.title">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :icon="settings.theme.icon"
+            variant="text"
+            @click="toggleTheme()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" text="Settings">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-cog"
-                  variant="text"
-                  @click="settings.showing = true"
-                  :disabled="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
-          </template>
-          <v-card-text>
-            <v-form>
-              <v-text-field
-                v-model="bookmark.url"
-                label="URL"
-                density="comfortable"
-                :disabled="loading"
-                :loading="loading"
-              ></v-text-field>
+      <v-tooltip location="bottom" text="Settings">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            icon="mdi-cog"
+            variant="text"
+            @click="settings.showing = true"
+            :disabled="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
+    </template>
+    <v-card-text>
+      <v-form>
+        <v-text-field
+          v-model="bookmark.url"
+          label="URL"
+          density="comfortable"
+          :disabled="loading"
+          :loading="loading"
+        ></v-text-field>
 
-              <v-text-field
-                v-model="bookmark.title"
-                label="Title"
-                density="comfortable"
-                :disabled="loading"
-                :loading="loading"
-              ></v-text-field>
+        <v-text-field
+          v-model="bookmark.title"
+          label="Title"
+          density="comfortable"
+          :disabled="loading"
+          :loading="loading"
+        ></v-text-field>
 
-              <v-textarea
-                v-model="bookmark.description"
-                label="Description"
-                rows="3"
-                :disabled="loading"
-                :loading="loading"
-              ></v-textarea>
+        <v-textarea
+          v-model="bookmark.description"
+          label="Description"
+          rows="3"
+          :disabled="loading"
+          :loading="loading"
+        ></v-textarea>
 
-              <v-autocomplete
-                v-model="bookmark.lists"
-                :items="lists"
-                label="List"
-                multiple
-                chips
-                closable-chips
-                clear-on-select
-                auto-select-first
-                hide-no-data
-                clearable
-                :disabled="loading"
-                :loading="loading || loadingLists"
-                @focus="fetchLists(false)"
-              ></v-autocomplete>
+        <v-autocomplete
+          v-model="bookmark.lists"
+          :items="lists"
+          label="List"
+          multiple
+          chips
+          closable-chips
+          clear-on-select
+          auto-select-first
+          hide-no-data
+          clearable
+          :disabled="loading"
+          :loading="loading || loadingLists"
+          @focus="fetchLists(false)"
+        ></v-autocomplete>
 
-              <v-autocomplete
-                v-model="bookmark.tags"
-                :items="tags"
-                label="Tags"
-                multiple
-                chips
-                closable-chips
-                clear-on-select
-                auto-select-first
-                hide-no-data
-                clearable
-                :disabled="loading"
-                :loading="loading || loadingTags"
-                @focus="fetchTags(false)"
-              ></v-autocomplete>
+        <v-autocomplete
+          v-model="bookmark.tags"
+          :items="tags"
+          label="Tags"
+          multiple
+          chips
+          closable-chips
+          clear-on-select
+          auto-select-first
+          hide-no-data
+          clearable
+          :disabled="loading"
+          :loading="loading || loadingTags"
+          @focus="fetchTags(false)"
+        ></v-autocomplete>
 
-              <v-btn
-                color="primary"
-                class="mt-2"
-                @click="saveBookmark"
-                :disabled="loading"
-                :loading="loading"
-                >Save bookmark</v-btn
-              >
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+        <v-btn
+          color="primary"
+          class="mt-2"
+          @click="saveBookmark"
+          :disabled="loading"
+          :loading="loading"
+          >Save bookmark</v-btn
+        >
+      </v-form>
+    </v-card-text>
+  </v-card>
 
   <v-dialog v-model="settings.showing" transition="dialog-bottom-transition" fullscreen>
     <v-card
