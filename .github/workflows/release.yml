@@ -42,9 +42,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --immutable
 
       - name: Run Prettier
         run: yarn fmt
@@ -76,9 +77,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --immutable
 
       - name: Determine production release
         if: github.event_name == 'workflow_dispatch'

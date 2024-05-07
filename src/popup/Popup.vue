@@ -1,144 +1,153 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="12" md="10" lg="8">
-        <v-snackbar
-          location="top"
-          :color="snackBar.type"
-          :text="snackBar.text"
-          v-model="snackBar.showing"
-        ></v-snackbar>
+  <v-snackbar
+    location="top"
+    :color="snackBar.type"
+    :text="snackBar.text"
+    v-model="snackBar.showing"
+  ></v-snackbar>
 
-        <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
-          <template v-slot:append>
-            <v-tooltip
-              location="bottom"
-              :text="
-                bookmark.id > 0
-                  ? 'Already bookmarked in LinkAce!'
-                  : 'Not yet bookmarked in LinkAce.'
-              "
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
-                  :color="bookmark.id > 0 ? 'success' : 'warning'"
-                  variant="text"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+  <v-card variant="text" title="🔖 · New Bookmark" subtitle="Bookmark this page in LinkAce.">
+    <template v-slot:append>
+      <v-tooltip
+        location="bottom"
+        :text="
+          bookmark.id > 0 ? 'Already bookmarked in LinkAce!' : 'Not yet bookmarked in LinkAce.'
+        "
+      >
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :icon="bookmark.id > 0 ? 'mdi-check-decagram' : 'mdi-help-rhombus-outline'"
+            :color="bookmark.id > 0 ? 'success' : 'warning'"
+            variant="text"
+            @click="visitActiveTabLink()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" text="Refresh">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-refresh"
-                  variant="text"
-                  @click="refresh()"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+      <v-tooltip location="bottom" text="Refresh">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            icon="mdi-refresh"
+            variant="text"
+            @click="refresh()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" :text="settings.theme.title">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  :icon="settings.theme.icon"
-                  variant="text"
-                  @click="toggleTheme()"
-                  :disabled="loading"
-                  :loading="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+      <v-tooltip location="bottom" :text="settings.theme.title">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            :icon="settings.theme.icon"
+            variant="text"
+            @click="toggleTheme()"
+            :disabled="loading"
+            :loading="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
 
-            <v-tooltip location="bottom" text="Settings">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-cog"
-                  variant="text"
-                  @click="settings.showing = true"
-                  :disabled="loading"
-                ></v-btn>
-              </template>
-            </v-tooltip>
-          </template>
-          <v-card-text>
-            <v-form>
-              <v-text-field
-                v-model="bookmark.url"
-                label="URL"
-                density="comfortable"
-                :disabled="loading"
-                :loading="loading"
-              ></v-text-field>
+      <v-tooltip location="bottom" text="Settings">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            icon="mdi-cog"
+            variant="text"
+            @click="settings.showing = true"
+            :disabled="loading"
+          ></v-btn>
+        </template>
+      </v-tooltip>
+    </template>
+    <v-card-text>
+      <v-form>
+        <v-text-field
+          v-model="bookmark.url"
+          label="URL"
+          density="comfortable"
+          :disabled="loading"
+          :loading="loading"
+        ></v-text-field>
 
-              <v-text-field
-                v-model="bookmark.title"
-                label="Title"
-                density="comfortable"
-                :disabled="loading"
-                :loading="loading"
-              ></v-text-field>
+        <v-text-field
+          v-model="bookmark.title"
+          label="Title"
+          density="comfortable"
+          :disabled="loading"
+          :loading="loading"
+        ></v-text-field>
 
-              <v-textarea
-                v-model="bookmark.description"
-                label="Description"
-                rows="3"
-                :disabled="loading"
-                :loading="loading"
-              ></v-textarea>
+        <v-textarea
+          v-model="bookmark.description"
+          label="Description"
+          rows="3"
+          :disabled="loading"
+          :loading="loading"
+        ></v-textarea>
 
-              <v-autocomplete
-                v-model="bookmark.lists"
-                :items="lists"
-                label="List"
-                multiple
-                chips
-                closable-chips
-                clear-on-select
-                auto-select-first
-                hide-no-data
-                :disabled="loading"
-                :loading="loading || loadingLists"
-                @focus="fetchLists(false)"
-              ></v-autocomplete>
+        <v-autocomplete
+          v-model="bookmark.lists"
+          :items="lists"
+          label="List"
+          multiple
+          chips
+          closable-chips
+          clear-on-select
+          auto-select-first
+          hide-no-data
+          clearable
+          :disabled="loading"
+          :loading="loading || loadingLists"
+          @focus="fetchLists(false)"
+        ></v-autocomplete>
 
-              <v-autocomplete
-                v-model="bookmark.tags"
-                :items="tags"
-                label="Tags"
-                multiple
-                chips
-                closable-chips
-                clear-on-select
-                auto-select-first
-                hide-no-data
-                :disabled="loading"
-                :loading="loading || loadingTags"
-                @focus="fetchTags(false)"
-              ></v-autocomplete>
+        <v-autocomplete
+          v-model="bookmark.tags"
+          :items="tags"
+          label="Tags"
+          multiple
+          chips
+          closable-chips
+          clear-on-select
+          auto-select-first
+          hide-no-data
+          clearable
+          hide-details="auto"
+          :disabled="loading"
+          :loading="loading || loadingTags"
+          @focus="fetchTags(false)"
+        ></v-autocomplete>
+      </v-form>
+    </v-card-text>
 
-              <v-btn
-                color="primary"
-                class="mt-2"
-                @click="saveBookmark"
-                :disabled="loading"
-                :loading="loading"
-                >Save bookmark</v-btn
-              >
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+    <v-divider></v-divider>
+
+    <v-card-actions>
+      <v-checkbox
+        density="comfortable"
+        hide-details="auto"
+        label="Persist last used tags?"
+        v-model="settings.persistTags"
+      ></v-checkbox>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        text="Save bookmark"
+        variant="tonal"
+        color="primary"
+        @click="saveBookmark"
+        :disabled="loading"
+        :loading="loading"
+      ></v-btn>
+    </v-card-actions>
+  </v-card>
 
   <v-dialog v-model="settings.showing" transition="dialog-bottom-transition" fullscreen>
     <v-card
@@ -172,14 +181,16 @@
 
             <v-checkbox
               density="comfortable"
+              hide-details="auto"
               label="Auto close window after submission?"
               v-model="settings.autoCloseAfterSubmit"
             ></v-checkbox>
 
             <v-checkbox
               density="comfortable"
-              label="Persist last used tags?"
-              v-model="settings.persistTags"
+              hide-details="auto"
+              label="Trim YouTube URL's?"
+              v-model="settings.trimYouTubeUrls"
             ></v-checkbox>
           </v-col>
         </v-row>
@@ -257,6 +268,7 @@ export default {
         linkAceUrl: '',
         apiToken: '',
         autoCloseAfterSubmit: false,
+        trimYouTubeUrls: false,
         persistTags: false,
       },
       lists: [],
@@ -355,6 +367,18 @@ export default {
             this.bookmark.url = this.bookmark.url.substring(0, this.bookmark.url.length - 1)
           }
 
+          // Trim's YouTube Url's of their playlist information and all other stuff,
+          //  to try and reduce duplicates from URL permutations.
+          if (this.settings.trimYouTubeUrls) {
+            const match = this.bookmark.url.match(
+              /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+            )
+
+            if (match && match[1]) {
+              this.bookmark.url = `https://www.youtube.com/watch?v=${match[1]}`
+            }
+          }
+
           // Really stupid, but a small delay is required otherwise the current bookmark fetch doesn't work
           await this.delay(25)
           this.fetchActiveTabLink()
@@ -367,6 +391,11 @@ export default {
       this.fetchActiveTabLink()
       this.fetchLists(true)
       this.fetchTags(true)
+    },
+    visitActiveTabLink(): void {
+      if (this.bookmark.id > 0) {
+        chrome.tabs.create({ url: this.settings.linkAceUrl + '/links/' + this.bookmark.id })
+      }
     },
     fetchActiveTabLink(): void {
       this.startLoading()
@@ -582,6 +611,9 @@ export default {
     'settings.autoCloseAfterSubmit'(newState, oldState) {
       chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
     },
+    'settings.trimYouTubeUrls'(newState, oldState) {
+      chrome.storage.sync.set({ trimYouTubeUrls: newState })
+    },
     'settings.persistTags'(newState, oldState) {
       chrome.storage.sync.set({ persistTags: newState })
     },
@@ -616,6 +648,13 @@ export default {
       this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
     })
 
+    chrome.storage.sync.get(['trimYouTubeUrls'], (result) => {
+      this.settings.trimYouTubeUrls = result.trimYouTubeUrls ?? false
+
+      // As this depends on the value of trimYouTubeUrls, only call the rest of the chain once its loaded!
+      this.fetchActiveTab()
+    })
+
     chrome.storage.sync.get(['persistTags'], (result) => {
       this.settings.persistTags = result.persistTags ?? false
     })
@@ -627,8 +666,6 @@ export default {
         this.bookmark.tags = []
       }
     })
-
-    this.fetchActiveTab()
   },
 }
 </script>

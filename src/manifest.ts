@@ -7,7 +7,7 @@ const isDev = process.env.NODE_ENV == 'development'
 export default defineManifest({
   name: `${packageData.displayName || packageData.name}${isDev ? ` [Dev]` : ''}`,
   description: packageData.description,
-  version: packageData.version,
+  version: packageData.version.replace('-', '.'),
   manifest_version: 3,
   icons: {
     16: 'img/logo-16.png',
@@ -29,5 +29,5 @@ export default defineManifest({
       matches: [],
     },
   ],
-  permissions: ['activeTab', 'storage'],
+  permissions: ['tabs', 'storage'],
 })
