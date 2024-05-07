@@ -118,6 +118,7 @@
           auto-select-first
           hide-no-data
           clearable
+          hide-details="auto"
           :disabled="loading"
           :loading="loading || loadingTags"
           @focus="fetchTags(false)"
@@ -166,13 +167,15 @@
             <v-divider class="mt-8 mb-4"></v-divider>
 
             <v-checkbox
-              density="compact"
+              density="comfortable"
+              hide-details="auto"
               label="Auto close window after submission?"
               v-model="settings.autoCloseAfterSubmit"
             ></v-checkbox>
 
             <v-checkbox
-              density="compact"
+              density="comfortable"
+              hide-details="auto"
               label="Trim YouTube Url's?"
               v-model="settings.trimYouTubeUrls"
             ></v-checkbox>
