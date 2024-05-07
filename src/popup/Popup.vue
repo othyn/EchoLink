@@ -123,17 +123,30 @@
           :loading="loading || loadingTags"
           @focus="fetchTags(false)"
         ></v-autocomplete>
-
-        <v-btn
-          color="primary"
-          class="mt-2"
-          @click="saveBookmark"
-          :disabled="loading"
-          :loading="loading"
-          >Save bookmark</v-btn
-        >
       </v-form>
     </v-card-text>
+
+    <v-divider></v-divider>
+
+    <v-card-actions>
+      <v-checkbox
+        density="comfortable"
+        hide-details="auto"
+        label="Persist last used tags?"
+        v-model="settings.persistTags"
+      ></v-checkbox>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        text="Save bookmark"
+        variant="tonal"
+        color="primary"
+        @click="saveBookmark"
+        :disabled="loading"
+        :loading="loading"
+      ></v-btn>
+    </v-card-actions>
   </v-card>
 
   <v-dialog v-model="settings.showing" transition="dialog-bottom-transition" fullscreen>
@@ -178,12 +191,6 @@
               hide-details="auto"
               label="Trim YouTube URL's?"
               v-model="settings.trimYouTubeUrls"
-            ></v-checkbox>
-
-            <v-checkbox
-              density="compact"
-              label="Persist last used tags?"
-              v-model="settings.persistTags"
             ></v-checkbox>
           </v-col>
         </v-row>
