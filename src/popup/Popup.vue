@@ -48,7 +48,6 @@
             variant="text"
             @click="toggleTheme()"
             :disabled="loading"
-            :loading="loading"
           ></v-btn>
         </template>
       </v-tooltip>
@@ -134,6 +133,7 @@
         hide-details="auto"
         label="Persist last used tags?"
         v-model="settings.persistTags"
+        :disabled="loading"
       ></v-checkbox>
 
       <v-spacer></v-spacer>
@@ -164,6 +164,8 @@
               label="LinkAce URL"
               hint="https://linkace.example.com"
               required
+              :disabled="loading"
+              :loading="loading"
             ></v-text-field>
 
             <v-text-field
@@ -171,6 +173,8 @@
               type="input"
               label="API Token"
               required
+              :disabled="loading"
+              :loading="loading"
             ></v-text-field>
 
             <v-btn variant="tonal" @click="testApi" :disabled="loading" :loading="loading"
@@ -184,6 +188,7 @@
               hide-details="auto"
               label="Auto close window after submission?"
               v-model="settings.autoCloseAfterSubmit"
+              :disabled="loading"
             ></v-checkbox>
 
             <v-checkbox
@@ -191,6 +196,7 @@
               hide-details="auto"
               label="Trim YouTube URL's?"
               v-model="settings.trimYouTubeUrls"
+              :disabled="loading"
             ></v-checkbox>
           </v-col>
         </v-row>
@@ -206,6 +212,7 @@
           variant="tonal"
           color="primary"
           @click="settings.showing = false"
+          :disabled="loading"
         ></v-btn>
       </v-card-actions>
     </v-card>
