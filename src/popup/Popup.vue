@@ -176,7 +176,7 @@
             <v-checkbox
               density="comfortable"
               hide-details="auto"
-              label="Trim YouTube Url's?"
+              label="Trim YouTube URL's?"
               v-model="settings.trimYouTubeUrls"
             ></v-checkbox>
 
