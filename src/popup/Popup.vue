@@ -623,6 +623,16 @@ export default {
     },
     'settings.persistTags'(newState, oldState) {
       chrome.storage.sync.set({ persistTags: newState })
+
+      if (newState) {
+        chrome.storage.sync.set({
+          persistedTags: isProxy(this.bookmark.tags)
+            ? toRaw(this.bookmark.tags)
+            : this.bookmark.tags,
+        })
+      } else {
+        chrome.storage.sync.set({ persistedTags: [] })
+      }
     },
     'bookmark.tags'(newState, oldState) {
       if (this.settings.persistTags) {
