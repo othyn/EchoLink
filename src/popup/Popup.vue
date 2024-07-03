@@ -160,6 +160,7 @@
           <v-col cols="12" md="4" sm="6">
             <v-text-field
               v-model="settings.linkAceUrl"
+              density="comfortable"
               type="input"
               label="LinkAce URL"
               hint="https://linkace.example.com"
@@ -170,6 +171,7 @@
 
             <v-text-field
               v-model="settings.apiToken"
+              density="comfortable"
               type="input"
               label="API Token"
               required
@@ -181,7 +183,20 @@
               >Test connection
             </v-btn>
 
-            <v-divider class="mt-8 mb-4"></v-divider>
+            <v-divider class="mt-4 mb-4"></v-divider>
+
+            <v-text-field
+              v-model="settings.timeout"
+              density="comfortable"
+              type="number"
+              label="Connection Timeout"
+              suffix="milliseconds"
+              min="0"
+              max="999999"
+              required
+              :disabled="loading"
+              :loading="loading"
+            ></v-text-field>
 
             <v-checkbox
               density="comfortable"
@@ -274,6 +289,7 @@ export default {
         theme: themes.device,
         linkAceUrl: '',
         apiToken: '',
+        timeout: axios.defaults.timeout,
         autoCloseAfterSubmit: false,
         trimYouTubeUrls: false,
         persistTags: false,
@@ -615,6 +631,10 @@ export default {
       chrome.storage.sync.set({ apiToken: newToken })
       axios.defaults.headers.common['authorization'] = 'Bearer ' + newToken
     },
+    'settings.timeout'(newState, oldState) {
+      chrome.storage.sync.set({ timeout: newState })
+      axios.defaults.timeout = newState
+    },
     'settings.autoCloseAfterSubmit'(newState, oldState) {
       chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
     },
@@ -659,6 +679,11 @@ export default {
 
       this.settings.apiToken = apiToken
       axios.defaults.headers.common['authorization'] = 'Bearer ' + apiToken
+    })
+
+    chrome.storage.sync.get(['timeout'], (result) => {
+      this.settings.timeout = result.timeout ?? axios.defaults.timeout
+      axios.defaults.timeout = this.settings.timeout
     })
 
     chrome.storage.sync.get(['autoCloseAfterSubmit'], (result) => {
