@@ -90,13 +90,6 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         run: yarn version --no-git-tag-version --prerelease
 
-      - name: Commit any changes back to the repo
-        id: commit-and-push
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: '[GitHub Actions Bot: Version Bump]'
-          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-
       - name: Get version from package.json
         id: package_version
         uses: actions/github-script@v7
@@ -106,6 +99,13 @@ jobs:
 
       - name: Build a release package
         run: yarn package
+
+      - name: Commit any changes back to the repo
+        id: commit-and-push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '[GitHub Actions Bot: Version Bump]'
+          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
 
       - name: Build Changelog
         uses: johnyherangi/create-release-notes@v1
