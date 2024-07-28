@@ -663,44 +663,44 @@ export default {
     },
   },
   mounted() {
-    chrome.storage.local.get(['theme'], (result) => {
+    chrome.storage.local.get('theme', (result) => {
       this.setTheme(result.theme.mode ?? themes.device)
     })
 
-    chrome.storage.local.get(['linkAceUrl'], (result) => {
+    chrome.storage.local.get('linkAceUrl', (result) => {
       let url = result.linkAceUrl ?? ''
 
       this.settings.linkAceUrl = url
       axios.defaults.baseURL = url
     })
 
-    chrome.storage.local.get(['apiToken'], (result) => {
+    chrome.storage.local.get('apiToken', (result) => {
       let apiToken = result.apiToken ?? ''
 
       this.settings.apiToken = apiToken
       axios.defaults.headers.common['authorization'] = 'Bearer ' + apiToken
     })
 
-    chrome.storage.local.get(['timeout'], (result) => {
+    chrome.storage.local.get('timeout', (result) => {
       this.settings.timeout = result.timeout ?? axios.defaults.timeout
       axios.defaults.timeout = this.settings.timeout
     })
 
-    chrome.storage.local.get(['autoCloseAfterSubmit'], (result) => {
+    chrome.storage.local.get('autoCloseAfterSubmit', (result) => {
       this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
     })
 
-    chrome.storage.local.get(['trimYouTubeUrls'], (result) => {
+    chrome.storage.local.get('trimYouTubeUrls', (result) => {
       this.settings.trimYouTubeUrls = result.trimYouTubeUrls ?? false
 
       // As this depends on the value of trimYouTubeUrls, only call the rest of the chain once its loaded!
       this.fetchActiveTab()
     })
 
-    chrome.storage.local.get(['persistTags'], (result) => {
+    chrome.storage.local.get('persistTags', (result) => {
       this.settings.persistTags = result.persistTags ?? false
     })
-    chrome.storage.local.get(['persistedTags'], (result) => {
+    chrome.storage.local.get('persistedTags', (result) => {
       if (this.settings.persistTags) {
         this.fetchTags(false)
         this.bookmark.tags = result.persistedTags ?? []
