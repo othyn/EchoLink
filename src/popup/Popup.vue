@@ -664,7 +664,7 @@ export default {
   },
   mounted() {
     chrome.storage.local.get('theme', (result) => {
-      this.setTheme(result.theme.mode ?? themes.device)
+      this.setTheme(result.theme.mode ?? themes.device.mode)
     })
 
     chrome.storage.local.get('linkAceUrl', (result) => {
