@@ -306,7 +306,7 @@ export default {
   methods: {
     setTheme(mode: string): void {
       this.settings.theme = themes[mode]
-      chrome.storage.sync.set({ theme: this.settings.theme })
+      chrome.storage.local.set({ theme: this.settings.theme })
       this.$vuetify.theme.global.name = this.settings.theme.vuetify
     },
     toggleTheme(): void {
@@ -624,83 +624,83 @@ export default {
   },
   watch: {
     'settings.linkAceUrl'(newUrl, oldUrl) {
-      chrome.storage.sync.set({ linkAceUrl: newUrl })
+      chrome.storage.local.set({ linkAceUrl: newUrl })
       axios.defaults.baseURL = newUrl
     },
     'settings.apiToken'(newToken, oldToken) {
-      chrome.storage.sync.set({ apiToken: newToken })
+      chrome.storage.local.set({ apiToken: newToken })
       axios.defaults.headers.common['authorization'] = 'Bearer ' + newToken
     },
     'settings.timeout'(newState, oldState) {
-      chrome.storage.sync.set({ timeout: newState })
+      chrome.storage.local.set({ timeout: newState })
       axios.defaults.timeout = newState
     },
     'settings.autoCloseAfterSubmit'(newState, oldState) {
-      chrome.storage.sync.set({ autoCloseAfterSubmit: newState })
+      chrome.storage.local.set({ autoCloseAfterSubmit: newState })
     },
     'settings.trimYouTubeUrls'(newState, oldState) {
-      chrome.storage.sync.set({ trimYouTubeUrls: newState })
+      chrome.storage.local.set({ trimYouTubeUrls: newState })
     },
     'settings.persistTags'(newState, oldState) {
-      chrome.storage.sync.set({ persistTags: newState })
+      chrome.storage.local.set({ persistTags: newState })
 
       if (newState) {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           persistedTags: isProxy(this.bookmark.tags)
             ? toRaw(this.bookmark.tags)
             : this.bookmark.tags,
         })
       } else {
-        chrome.storage.sync.set({ persistedTags: [] })
+        chrome.storage.local.set({ persistedTags: [] })
       }
     },
     'bookmark.tags'(newState, oldState) {
       if (this.settings.persistTags) {
-        chrome.storage.sync.set({ persistedTags: isProxy(newState) ? toRaw(newState) : newState })
+        chrome.storage.local.set({ persistedTags: isProxy(newState) ? toRaw(newState) : newState })
       } else {
-        chrome.storage.sync.set({ persistedTags: [] })
+        chrome.storage.local.set({ persistedTags: [] })
       }
     },
   },
   mounted() {
-    chrome.storage.sync.get(['theme'], (result) => {
+    chrome.storage.local.get(['theme'], (result) => {
       this.setTheme(result.theme.mode ?? themes.device)
     })
 
-    chrome.storage.sync.get(['linkAceUrl'], (result) => {
+    chrome.storage.local.get(['linkAceUrl'], (result) => {
       let url = result.linkAceUrl ?? ''
 
       this.settings.linkAceUrl = url
       axios.defaults.baseURL = url
     })
 
-    chrome.storage.sync.get(['apiToken'], (result) => {
+    chrome.storage.local.get(['apiToken'], (result) => {
       let apiToken = result.apiToken ?? ''
 
       this.settings.apiToken = apiToken
       axios.defaults.headers.common['authorization'] = 'Bearer ' + apiToken
     })
 
-    chrome.storage.sync.get(['timeout'], (result) => {
+    chrome.storage.local.get(['timeout'], (result) => {
       this.settings.timeout = result.timeout ?? axios.defaults.timeout
       axios.defaults.timeout = this.settings.timeout
     })
 
-    chrome.storage.sync.get(['autoCloseAfterSubmit'], (result) => {
+    chrome.storage.local.get(['autoCloseAfterSubmit'], (result) => {
       this.settings.autoCloseAfterSubmit = result.autoCloseAfterSubmit ?? false
     })
 
-    chrome.storage.sync.get(['trimYouTubeUrls'], (result) => {
+    chrome.storage.local.get(['trimYouTubeUrls'], (result) => {
       this.settings.trimYouTubeUrls = result.trimYouTubeUrls ?? false
 
       // As this depends on the value of trimYouTubeUrls, only call the rest of the chain once its loaded!
       this.fetchActiveTab()
     })
 
-    chrome.storage.sync.get(['persistTags'], (result) => {
+    chrome.storage.local.get(['persistTags'], (result) => {
       this.settings.persistTags = result.persistTags ?? false
     })
-    chrome.storage.sync.get(['persistedTags'], (result) => {
+    chrome.storage.local.get(['persistedTags'], (result) => {
       if (this.settings.persistTags) {
         this.fetchTags(false)
         this.bookmark.tags = result.persistedTags ?? []
