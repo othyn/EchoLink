@@ -201,6 +201,14 @@
             <v-checkbox
               density="comfortable"
               hide-details="auto"
+              label="Use LinkAce booklet for right click?"
+              v-model="settings.useLinkAceBookletForRightClick"
+              :disabled="loading"
+            ></v-checkbox>
+
+            <v-checkbox
+              density="comfortable"
+              hide-details="auto"
               label="Auto close window after submission?"
               v-model="settings.autoCloseAfterSubmit"
               :disabled="loading"
@@ -290,6 +298,7 @@ export default {
         linkAceUrl: '',
         apiToken: '',
         timeout: axios.defaults.timeout,
+        useLinkAceBookletForRightClick: false,
         autoCloseAfterSubmit: false,
         trimYouTubeUrls: false,
         persistTags: false,
@@ -382,32 +391,40 @@ export default {
       try {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
 
-        if (tab) {
-          this.bookmark.url = tab.url ?? ''
-          this.bookmark.title = tab.title ?? ''
+        chrome.storage.local.get('contextMenuLink', (result) => {
+          let contextMenuLink = result.contextMenuLink ?? ''
 
-          if (this.bookmark.url[this.bookmark.url.length - 1] == '/') {
-            this.bookmark.url = this.bookmark.url.substring(0, this.bookmark.url.length - 1)
+          if (contextMenuLink) {
+            this.bookmark.url = contextMenuLink
+          } else if (tab) {
+            this.bookmark.url = tab.url ?? ''
+            this.bookmark.title = tab.title ?? ''
           }
 
-          // Trim's YouTube Url's of their playlist information and all other stuff,
-          //  to try and reduce duplicates from URL permutations.
-          if (this.settings.trimYouTubeUrls) {
-            const match = this.bookmark.url.match(
-              /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-            )
+          chrome.storage.local.remove('contextMenuLink')
 
-            if (match && match[1]) {
-              this.bookmark.url = `https://www.youtube.com/watch?v=${match[1]}`
+          if (this.bookmark.url) {
+            if (this.bookmark.url[this.bookmark.url.length - 1] == '/') {
+              this.bookmark.url = this.bookmark.url.substring(0, this.bookmark.url.length - 1)
             }
-          }
 
-          // Really stupid, but a small delay is required otherwise the current bookmark fetch doesn't work
-          await this.delay(25)
-          this.fetchActiveTabLink()
-        }
+            // Trim's YouTube Url's of their playlist information and all other stuff,
+            //  to try and reduce duplicates from URL permutations.
+            if (this.settings.trimYouTubeUrls) {
+              const match = this.bookmark.url.match(
+                /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+              )
+
+              if (match && match[1]) {
+                this.bookmark.url = `https://www.youtube.com/watch?v=${match[1]}`
+              }
+            }
+
+            this.fetchActiveTabLink()
+          }
+        })
       } catch (error) {
-        this.showError('Failed to fetch active tab: ' + error)
+        this.showError('Failed to fetch url: ' + error)
       }
     },
     refresh() {
@@ -635,6 +652,9 @@ export default {
       chrome.storage.local.set({ timeout: newState })
       axios.defaults.timeout = newState
     },
+    'settings.useLinkAceBookletForRightClick'(newState, oldState) {
+      chrome.storage.local.set({ useLinkAceBookletForRightClick: newState })
+    },
     'settings.autoCloseAfterSubmit'(newState, oldState) {
       chrome.storage.local.set({ autoCloseAfterSubmit: newState })
     },
@@ -684,6 +704,10 @@ export default {
     chrome.storage.local.get('timeout', (result) => {
       this.settings.timeout = result.timeout ?? axios.defaults.timeout
       axios.defaults.timeout = this.settings.timeout
+    })
+
+    chrome.storage.local.get('useLinkAceBookletForRightClick', (result) => {
+      this.settings.useLinkAceBookletForRightClick = result.useLinkAceBookletForRightClick ?? false
     })
 
     chrome.storage.local.get('autoCloseAfterSubmit', (result) => {
