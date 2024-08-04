@@ -131,8 +131,8 @@
       <v-checkbox
         density="comfortable"
         hide-details="auto"
-        label="Persist last used tags?"
-        v-model="settings.persistTags"
+        label="Persist last used lists/tags?"
+        v-model="settings.persistListsTags"
         :disabled="loading"
       ></v-checkbox>
 
@@ -301,7 +301,7 @@ export default {
         useLinkAceBookletForRightClick: false,
         autoCloseAfterSubmit: false,
         trimYouTubeUrls: false,
-        persistTags: false,
+        persistListsTags: false,
       },
       lists: [],
       tags: [],
@@ -661,8 +661,8 @@ export default {
     'settings.trimYouTubeUrls'(newState, oldState) {
       chrome.storage.local.set({ trimYouTubeUrls: newState })
     },
-    'settings.persistTags'(newState, oldState) {
-      chrome.storage.local.set({ persistTags: newState })
+    'settings.persistListsTags'(newState, oldState) {
+      chrome.storage.local.set({ persistListsTags: newState })
 
       if (newState) {
         chrome.storage.local.set({
@@ -670,15 +670,23 @@ export default {
             ? toRaw(this.bookmark.tags)
             : this.bookmark.tags,
         })
+        chrome.storage.local.set({
+          persistedLists: isProxy(this.bookmark.lists)
+            ? toRaw(this.bookmark.lists)
+            : this.bookmark.lists,
+        })
       } else {
         chrome.storage.local.set({ persistedTags: [] })
+        chrome.storage.local.set({ persistedLists: [] })
       }
     },
     'bookmark.tags'(newState, oldState) {
-      if (this.settings.persistTags) {
+      if (this.settings.persistListsTags) {
         chrome.storage.local.set({ persistedTags: isProxy(newState) ? toRaw(newState) : newState })
+        chrome.storage.local.set({ persistedLists: isProxy(newState) ? toRaw(newState) : newState })
       } else {
         chrome.storage.local.set({ persistedTags: [] })
+        chrome.storage.local.set({ persistedLists: [] })
       }
     },
   },
@@ -721,15 +729,23 @@ export default {
       this.fetchActiveTab()
     })
 
-    chrome.storage.local.get('persistTags', (result) => {
-      this.settings.persistTags = result.persistTags ?? false
+    chrome.storage.local.get('persistListsTags', (result) => {
+      this.settings.persistListsTags = result.persistListsTags ?? false
     })
     chrome.storage.local.get('persistedTags', (result) => {
-      if (this.settings.persistTags) {
+      if (this.settings.persistListsTags) {
         this.fetchTags(false)
         this.bookmark.tags = result.persistedTags ?? []
       } else {
         this.bookmark.tags = []
+      }
+    })
+    chrome.storage.local.get('persistedLists', (result) => {
+      if (this.settings.persistListsTags) {
+        this.fetchLists(false)
+        this.bookmark.lists = result.persistedLists ?? []
+      } else {
+        this.bookmark.lists = []
       }
     })
   },
