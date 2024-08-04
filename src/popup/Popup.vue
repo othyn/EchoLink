@@ -683,9 +683,14 @@ export default {
     'bookmark.tags'(newState, oldState) {
       if (this.settings.persistListsTags) {
         chrome.storage.local.set({ persistedTags: isProxy(newState) ? toRaw(newState) : newState })
-        chrome.storage.local.set({ persistedLists: isProxy(newState) ? toRaw(newState) : newState })
       } else {
         chrome.storage.local.set({ persistedTags: [] })
+      }
+    },
+    'bookmark.lists'(newState, oldState) {
+      if (this.settings.persistListsTags) {
+        chrome.storage.local.set({ persistedLists: isProxy(newState) ? toRaw(newState) : newState })
+      } else {
         chrome.storage.local.set({ persistedLists: [] })
       }
     },
